@@ -1,0 +1,154 @@
+100 LET inpfil$ = "mdv1_day1_inp"
+110 CLS
+120 PRINT "R€knar antal rader i " & inpfil$
+130 LET antal_rader = Rakna_rader(inpfil$)
+140 PRINT "Antal rader i filen: " & antal_rader
+150 :
+160 REMark L€ser in och dela upp numren
+170 :
+180 DIM kol1(antal_rader), kol2(antal_rader)
+190 PRINT "L€ser in"!antal_rader!"rader"
+200 DIM falt$(2,10)
+210 OPEN_IN #5, inpfil$
+220 LET radnr = 1
+230 REPeat rader
+240   INPUT #5, raden$
+250   Dela_Upp raden$, " ", falt$
+260   kol1(radnr) = falt$(1)
+270   kol2(radnr) = falt$(2)
+280   IF EOF(#5) THEN EXIT rader
+290   radnr = radnr + 1
+300 END REPeat rader
+310 CLOSE #5
+320 :
+330 REMark Sortera kolumnerna
+340 PRINT "Sorterar kol 1... "!
+350 Bubblesort kol1
+360 PRINT "klart."
+370 PRINT "Sorterar kol 2... "!
+380 Bubblesort kol2
+390 PRINT "klart."
+400 :
+410 REMark Summera differenserna
+420 DIM totdist(3), sdist(3)
+430 PRINT "Tal 1","Tal2","Dist","Tot"
+440 PRINT "---","----","----","----"
+450 FOR i = 1 TO DIMN(kol1)
+460   dist = ABS(kol1(i)-kol2(i))
+470   Stortal_Fran_Heltal sdist, dist
+480   Stortal_Addera totdist, sdist
+490   PRINT kol1(i),kol2(i),dist,
+500   PRINT !totdist!
+510   PRINT
+520 END FOR i
+530 t$="": Stortal_Till_Str totdist, t$
+540 PRINT "Total distance: "!t$
+998 STOP
+999 :
+10000 REMark R€kna antal rader i en fil
+10010 DEFine FuNction Rakna_rader(filnamn$)
+10020   LOCal n%
+10030   LET n% = 0
+10040   OPEN_IN #5, filnamn$
+10050   REPeat rader
+10060     INPUT #5, rad$
+10070     n% = n% + 1
+10080     IF EOF(#5) THEN EXIT rader
+10090   END REPeat rader
+10100   CLOSE #5
+10110   RETurn n%
+10120 END DEFine 
+10130 :
+10140 REMark Sortera en array
+10150 DEFine PROCedure Bubblesort(lista)
+10160   LOCal i, j, byt
+10170   FOR i = 1 TO DIMN(lista)-1
+10180     FOR j = 1 TO DIMN(lista)-i
+10190       IF lista(j) > lista(j+1) THEN 
+10200         byt = lista(j)
+10210         lista(j) = lista(j+1)
+10220         lista(j+1) = byt
+10230       END IF 
+10240     END FOR j
+10250   END FOR i
+10260 END DEFine 
+10270 :
+10280 REMark Dela upp en str€ng i numeriska delar
+10290 REMark Dimensionera resultat$ med max antal OCH max l€ngd, ex DIM r$(10,10)
+10300 REMark Tomma f€lt l€ggs INTE till
+10310 DEFine PROCedure Dela_Upp(in$, sep$, resultat$)
+10320   LOCal tkn$, i, faltnr, falt$
+10330   LET faltnr = 1
+10340   LET falt$ = ""
+10350   FOR i=0 TO DIMN(resultat$): resultat$(i)=""
+10360   FOR i = 1 TO LEN(in$)
+10370     tkn$ = in$(i)
+10380     IF tkn$ INSTR sep$ > 0 THEN 
+10390       IF LEN(falt$) > 0 THEN 
+10400         resultat$(faltnr) = falt$
+10410         faltnr = faltnr + 1
+10420       END IF 
+10430       falt$ = ""
+10440     ELSE 
+10450       falt$ = falt$ & tkn$
+10460     END IF 
+10470   END FOR i
+10480   resultat$(faltnr) = falt$
+10490 END DEFine 
+10500 :
+10510 DEFine PROCedure Stortal_Addera(tal1, tal2)
+10520   LOCal iminne, i
+10530   IF DIMN(tal1) <> DIMN(tal2) THEN 
+10540     PRINT "**ERROR: Operanderna i Stortal_Addera har inte samma storlekar."
+10550     STOP
+10560   END IF 
+10570   LET iminne = 0
+10580   FOR i = 0 TO DIMN(tal1)
+10590     tal1(i) = tal1(i) + tal2(i) + iminne
+10600     IF tal1(i) > 9999 THEN 
+10610       iminne = tal1(i) DIV 10000
+10620       tal1(i) = tal1(i) MOD 10000
+10630     ELSE 
+10640       iminne = 0
+10650     END IF 
+10660   END FOR i
+10670   IF iminne > 0 THEN 
+10680     PRINT "**ERROR: Overflow i Stortal_Addera"
+10690     STOP
+10700   END IF 
+10710 END DEFine 
+10720 :
+10730 DEFine PROCedure Stortal_Fran_Heltal(stor, heltal)
+10740   LOCal tal, i
+10750   FOR i=0 TO DIMN(stor): stor(i)=0
+10760   LET tal = heltal
+10770   FOR i = 0 TO DIMN(stor)
+10780     IF tal > 0 THEN 
+10790       stor(i) = tal-INT(tal/10000)*10000
+10800       tal = INT(tal/10000)
+10810     ELSE 
+10820       EXIT i
+10830     END IF 
+10840   END FOR i
+10850   IF tal > 0 THEN 
+10860     PRINT "**ERROR: F„r stort heltal "!heltal!" f„r Stortalet"
+10870     STOP
+10880   END IF 
+10890 END DEFine 
+10900 :
+10910 DEFine PROCedure Stortal_Till_Str(tal, resultat$)
+10920   LOCal i, t$, ut$, startat
+10930   LET startat = 0
+10940   LET ut$ = ""
+10950   FOR i = DIMN(tal) TO 0 STEP -1
+10960     t$ = tal(i)
+10970     IF LEN(t$) < 4 AND startat = 1 THEN 
+10980       ut$ = ut$ & FILL$("0", 4-LEN(t$))
+10990     END IF 
+11000     IF tal(i) > 0 || startat = 1 THEN 
+11010       ut$ = ut$ & t$
+11020     END IF 
+11030     IF tal(i) > 0 THEN startat = 1
+11040   END FOR i
+11050   resultat$ = ut$
+11060 END DEFine 
