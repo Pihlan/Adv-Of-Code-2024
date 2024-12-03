@@ -1,3 +1,44 @@
+100 LET inpfil$ = "mdv1_day1_inp"
+110 CLS
+120 PRINT "R€knar antal rader i " & inpfil$
+130 LET antal_rader = Rakna_rader(inpfil$)
+140 PRINT "Antal rader i filen: " & antal_rader
+150 :
+160 PRINT "L€ser in" ! antal_rader ! "rader"
+170 DIM kol1(antal_rader), kol2(antal_rader)
+180 DIM falt$(2,10)
+190 OPEN_IN #5, inpfil$
+200 LET radnr = 1
+210 REPeat rader
+220   INPUT #5, raden$
+230   Dela_Upp raden$, " ", falt$
+240   kol1(radnr) = falt$(1)
+250   kol2(radnr) = falt$(2)
+260   IF EOF(#5) THEN EXIT rader
+270   radnr = radnr + 1
+280 END REPeat rader
+290 CLOSE #5
+300 :
+310 REMark "Similarity score"
+320 :
+330 REMark R€kna ut "similarity score" f„r varje nummer i kol1
+340 DIM score(4), totscore(4)
+350 PRINT "Idx","Nr","Antal","Score","Sum score"
+360 PRINT "----","----","----","----","----"
+370 FOR i = 1 TO DIMN(kol1)
+380   nummer = kol1(i)
+390   ant = Antal_I_Listan(kol2, nummer)
+410   Stortal_Fran_Heltal score, nummer
+420   Stortal_mult_med_heltal score, ant
+430   Stortal_Addera totscore, score
+440   s$="": Stortal_Till_Str score, s$
+450   t$="": Stortal_Till_Str totscore, t$
+460   PRINT i, nummer, ant, s$, t$
+470 END FOR i
+480 PRINT "Total simscore: "! t$
+997 :
+998 STOP
+999 :
 10000 REMark R€kna antal rader i en fil
 10010 DEFine FuNction Rakna_rader(filnamn$)
 10020   LOCal n%
@@ -107,25 +148,25 @@
 11060 END DEFine 
 11070 :
 11080 DEFine FuNction Antal_I_Listan(ar, sokt)
-11090   LOCal antal, i
-11100   LET antal = 0
-11110   FOR i = 1 TO DIMN(ar)
-11120     IF ar(i) = sokt THEN antal = antal + 1
-11130   END FOR i
-11140   RETurn antal
+11090 LOCal antal, i
+11100 LET antal = 0
+11110 FOR i = 1 TO DIMN(ar)
+11120 IF ar(i) = sokt THEN antal = antal + 1
+11130 END FOR i
+11140 RETurn antal
 11150 END DEFine 
 11160 :
 11170 DEFine PROCedure Stortal_mult_med_heltal(stor, heltalet)
-11180   LOCal i
-11190   LOCal okning(DIMN(stor))
-11200   IF heltalet = 0 THEN 
-11210     FOR i=0 TO DIMN(stor): stor(i)=0
-11220     RETurn 
-11230   END IF 
-11240   FOR i = 0 TO DIMN(stor)
-11250     okning(i) = stor(i)
-11260   END FOR i
-11270   FOR i = 1 TO heltalet-1
-11280     Stortal_Addera stor, okning
-11290   END FOR i
+11180 LOCal i
+11190 LOCal okning(DIMN(stor))
+11200 IF heltalet = 0 THEN 
+11210 FOR i=0 TO DIMN(stor): stor(i)=0
+11220 RETurn 
+11230 END IF 
+11240 FOR i = 0 TO DIMN(stor)
+11250 okning(i) = stor(i)
+11260 END FOR i
+11270 FOR i = 1 TO heltalet-1
+11280 Stortal_Addera stor, okning
+11290 END FOR i
 11300 END DEFine 
